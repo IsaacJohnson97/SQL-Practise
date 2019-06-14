@@ -195,3 +195,161 @@ SELECT*
 FROM current_job_detail cjd
 INNER JOIN employee_detail ed
 ON cjd.employee_id = ed.employee_id;
+
+-- This wont work so well, as id will repeat the same id in each row for different jobs they've had, harder to read
+-- 'order by' does what it says on the tin. 
+SELECT*
+FROM current_job_detail cjd
+INNER JOIN jobs_history jh
+ON cjd.employee_id = jh.employee_id
+order by cjd.employee_id;
+
+-- One to One relationships 
+-- One to Many relationships
+-- Many to Many relationships    
+
+-- Returning just the employee id from cjd, current job detail 
+SELECT cjd.employee_id
+FROM current_job_detail cjd
+INNER JOIN employee_detail ed
+ON cjd.employee_id = ed.employee_id;
+
+ -- job title by name
+ SELECT ed.name, cjd.job_title
+ FROM current_job_detail cjd
+ INNER JOIN employee_detail ed 
+ ON cjd.employee_id = ed.employee_id;
+
+
+
+
+-- CHALLENGES
+-- REMEMBER ON links them using primary keys, so no duplicates for the same person,
+--  you NEED THIS ASWELL AS WHERE (PARAMETERS) 
+-- return a table linking laptop and current job
+SELECT*
+FROM current_job_detail cjd
+INNER JOIN laptop_detail ld
+ON cjd.laptop_id = ld.laptop_id
+;
+
+-- return a table of employees that own a mac
+SELECT*
+FROM current_job_detail cjd
+INNER JOIN laptop_detail ld
+ON cjd.laptop_id = ld.laptop_id
+WHERE ld.os LIKE ('mac');
+
+-- Return a table of employyes that used to be an apprentice but are now developers
+SELECT*
+FROM current_job_detail cjd
+INNER JOIN jobs_history jh
+ON cjd.employee_id = jh.employee_id
+WHERE jh.job_title LIKE ('Apprentice%')
+AND
+cjd.job_title LIKE ('Devel%');
+
+-- Return a table of all the employees that weren’t a developer and now are
+SELECT*
+FROM current_job_detail cjd
+INNER JOIN jobs_history jh
+ON cjd.employee_id = jh.employee_id
+WHERE jh.job_title NOT LIKE ('Devel%')
+AND
+cjd.job_title LIKE ('Devel%');
+
+-- Return a table of all the employees that have had more then one job title (not using aggregates)
+SELECT*
+FROM current_job_detail cjd
+INNER JOIN jobs_history jh
+ON cjd.employee_id = jh.employee_id
+WHERE cjd.job_title != jh.job_title
+order by cjd.employee_id;
+
+
+
+
+-- AGGREGATING
+-- Max will return the max salary in the table  
+SELECT MAX(salary) FROM current_job_detail;
+
+-- GROUP BY can help us find the max salary for each job title
+SELECT job_title, MAX(salary) 
+FROM current_job_detail 
+GROUP BY job_title; 
+
+-- AVG finds the average
+SELECT job_title,AVG(salary) 
+FROM current_job_detail 
+GROUP BY job_title; 
+
+-- MIN will find the minimum salary for each title
+SELECT job_title, MIN(salary) 
+FROM current_job_detail 
+GROUP BY job_title; 
+
+-- SUM finds the sum of all the salaries in that job title
+SELECT job_title,SUM(salary) 
+FROM current_job_detail 
+GROUP BY job_title; 
+
+-- COUNT will find how many entries there is by job title
+SELECT job_title,COUNT(*) 
+FROM current_job_detail 
+GROUP BY job_title;
+
+
+
+
+-- CHALLENGES
+-- Return a table of the max salary by job type
+SELECT job_title, MAX(salary)
+FROM current_job_detail
+GROUP BY job_title; 
+
+-- Return a table counting how many people have each OS 
+SELECT os,COUNT(*) 
+FROM laptop_detail 
+GROUP BY os;
+
+-- Return a table of the average salary of staff members that have at some point been an apprentice developer 
+SELECT cjd.employee_id, AVG(salary) 
+FROM current_job_detail cjd, jobs_history jh
+WHERE cjd.job_title LIKE ('Apprentice%')
+OR 
+jh.job_title LIKE ('Apprentice%')
+GROUP BY cjd.employee_id;
+
+-- Return a row of data containing the name of the person with the highest salary
+SELECT name, MAX(salary)
+FROM current_job_detail cjd
+INNER JOIN employee_detail ed
+ON cjd.employee_id = ed.employee_id
+GROUP BY ed.name;
+
+
+CREATE TABLE high_salary (
+max_salary int,
+name varchar(64));
+
+INSERT INTO high_salary
+SELECT max(salary), name
+FROM current_job_detail, employee_detail;
+GROUP BY name, salary;
+
+
+select * from high_salary;
+
+
+
+
+
+-- SELECT salary, MAX(salary)
+-- FROM current_job_detail cjd ORDER BY salary
+-- INNER JOIN employee_detail ed
+-- ON cjd.employee_id = ed.employee_id
+-- GROUP BY ed.name;
+
+
+
+ 
